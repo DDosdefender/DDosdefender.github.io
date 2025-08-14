@@ -225,4 +225,7 @@ def request_stats():
     return jsonify(data)
 
 if __name__ == '__main__':
-    app.run(port=5000)
+    if os.getenv("INRENDER") == "true":
+        app.run(host="0.0.0.0", port=os.getenv("PORT"))
+    else:
+        app.run(port=5000)
