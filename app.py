@@ -118,7 +118,7 @@ _ip_memory = {}
 
 def isThreat(ip0, ip1, ip2, req_at60, req_at50, req_at40, req_at30, req_at20, req_at10):
     ip_key = (ip0, ip1, ip2)
-    past_sameValue = _ip_memory.get(ip_key, 1.0)
+    past_sameValue = _ip_memory.get(ip_key, 0.0)
 
     full_input = [
         ip0, ip1, ip2,
@@ -203,11 +203,12 @@ def protect_with_isThreat():
         abort(403, description=f"Blocked by threat detection (score: {threat_score:.2f})")
 
 @app.route('/')
-def home():
-    html = render_template('index.html')
-    res = make_response(html)
-    res.headers['AI-score'] = g.score 
-    return res
+def home(): 
+    return render_template('index.html')
+
+@app.route("/getThreatScore")
+def getThreat():
+    return {"threat_score": g.get("score", 0)}
 
 @app.route('/request-stats')
 def request_stats():

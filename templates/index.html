@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Threat Monitor</title>
+    <title>DDos defender example</title>
     <style>
+        .score-row {
+            display: flex;
+            align-items: center; /* vertically align button and text */
+            justify-content: center; /* center the whole row */
+            gap: 20px; /* spacing between text and button */
+        }
         body {
             font-family: 'Courier New', monospace;
             background-color: #001a00;
@@ -28,6 +34,20 @@
             padding: 20px;
             background-color: #002800;
         }
+        button {
+            background-color: black;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 6px 12px;
+            width: 250px;
+            height: 70px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 27px;
+        }
+        button:hover {
+            background-color: #003300;
+        }
     </style>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -36,10 +56,12 @@
 </head>
 <body>
     <header>
-        <h1>Test Page</h1>
-        <h2>Current Threat Score: <span id="threatScore">Loading...</span></h2>
+        <h1>DDos defender</h1>
+        <div class="score-row">
+            <h2 style="padding-left: 10%;" >Current Threat Score: <span id="threatScore">Loading...</span></h2>
+            <button id="Overload">Test Overload</button>
+        </div>
     </header>
-
     <main>
         <p>This is a test page for the server.</p>
     </main>
@@ -50,19 +72,31 @@
     </footer>
 
     <script>
+        let reqChart = null;
+
+        document.getElementById("Overload").addEventListener("click", function() {
+            for (let i = 0; i < 16; i++) {fetch(window.location.href, { method: "GET" })};
+        })
+
+
         async function loadData() {
             // Fetch the current page to get AI-score header
-            const pageResponse = await fetch(window.location.href, { method: 'GET' });
-            const aiScore = pageResponse.headers.get('AI-score');
+            const res = await fetch("/getThreatScore");
+            const data = await res.json();
+            const aiScore = data.threat_score;
             document.getElementById('threatScore').textContent = aiScore ?? "N/A";
 
             // Fetch request stats from server
             const statsResponse = await fetch('/request-stats');
             const statsData = await statsResponse.json();
 
+            if (reqChart) {
+                reqChart.destroy();
+            }
+
             // Draw chart
             const ctx = document.getElementById('requestChart').getContext('2d');
-            new Chart(ctx, {
+            reqChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['60s', '50s', '40s', '30s', '20s', '10s'],
@@ -99,7 +133,7 @@
         }
 
         loadData();
-        setInterval(loadData, 5000)
+        setInterval(loadData, 10 * 1000)
     </script>
 </body>
 </html>
