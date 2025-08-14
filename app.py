@@ -227,5 +227,6 @@ def request_stats():
 if __name__ == '__main__':
     if os.getenv("INRENDER") == "true":
         app.run(host="0.0.0.0", port=os.getenv("PORT"))
+        print(F"[INFO] Running in render mode on port {os.getenv('PORT')}")
     else:
         app.run(port=5000)
