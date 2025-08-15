@@ -7,9 +7,9 @@
     <style>
         .score-row {
             display: flex;
-            align-items: center; /* vertically align button and text */
-            justify-content: center; /* center the whole row */
-            gap: 20px; /* spacing between text and button */
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
         }
         body {
             font-family: 'Courier New', monospace;
@@ -52,32 +52,31 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="icon" href="{{ url_for('static', filename='favicon.ico') }}" type="image/x-icon">
-
 </head>
 <body>
     <header>
         <h1>DDos defender</h1>
         <div class="score-row">
-            <h2 style="padding-left: 10%;" >Current Threat Score: <span id="threatScore">Loading...</span></h2>
+            <h2 style="padding-left: 10%;">Current Threat Score: <span id="threatScore">Loading...</span></h2>
             <button id="Overload">Test Overload</button>
         </div>
     </header>
     <main>
         <p>This is a test page for the server.</p>
     </main>
-
     <footer>
         <h3>Request Activity (past seconds)</h3>
-        <canvas id="requestChart" width="400" height="200"></canvas>
+        <canvas id="requestChart" width="400" height="100"></canvas>
     </footer>
 
     <script>
         let reqChart = null;
 
         document.getElementById("Overload").addEventListener("click", function() {
-            for (let i = 0; i < 16; i++) {fetch(window.location.href, { method: "GET" })};
-        })
-
+            for (let i = 0; i < 16; i++) {
+                fetch(window.location.href, { method: "GET" });
+            }
+        });
 
         async function loadData() {
             // Fetch the current page to get AI-score header
@@ -97,7 +96,7 @@
             // Draw chart
             const ctx = document.getElementById('requestChart').getContext('2d');
             reqChart = new Chart(ctx, {
-                type: 'bar',
+                type: 'line',
                 data: {
                     labels: ['60s', '50s', '40s', '30s', '20s', '10s'],
                     datasets: [{
@@ -110,7 +109,13 @@
                             statsData.req_at20,
                             statsData.req_at10
                         ],
-                        backgroundColor: '#00ff00'
+                        borderColor: '#00ff00', // bright green line
+                        backgroundColor: '#00ff00', // green for points
+                        fill: false,
+                        tension: 0.2,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#00ff00',
+                        pointBorderColor: '#00ff00'
                     }]
                 },
                 options: {
@@ -132,8 +137,9 @@
             });
         }
 
+        // Initial load + repeat every 10 seconds
         loadData();
-        setInterval(loadData, 10 * 1000)
+        setInterval(loadData, 10 * 1000);
     </script>
 </body>
 </html>
